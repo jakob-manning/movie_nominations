@@ -1,17 +1,11 @@
-import React, {FormEvent, useEffect, useState} from "react";
+import React, {FormEvent, useCallback, useEffect, useState} from "react";
 import axios from "axios";
+import {movieInterface} from "../../Interfaces/MovieInterfaces";
+import SearchResults from "../Components/SearchResults";
+import Nominations from "../Components/Nominations";
 
-interface movieInterface {
-    Poster?: string,
-    Title: string,
-    Type: string,
-    Year: string,
-    imdbID: string
-}
-
-const MovieList: React.FC = () => {
+const MovieSearch: React.FC = () => {
     const [movieList, setMovieList] = useState<movieInterface[]>([])
-    const [Title, setMovietitle] = useState<string>()
     const [formValues, setFormValues] = useState({title: ""})
     const [nominatedMovies, setNominatedMovies] = useState<movieInterface[]>([])
     const [errorMessage, setErrorMessage] = useState("")
@@ -29,13 +23,7 @@ const MovieList: React.FC = () => {
         setFormValues({...formValues, [name]: value})
     }
 
-    useEffect(() => {
-        if (formValues.title.length > 3) {
-            searchHandler()
-        }
-    }, [formValues])
-
-    const searchHandler = async (event?: FormEvent) => {
+    const searchHandler = useCallback( async (event?: FormEvent) => {
         event?.preventDefault()
         setErrorMessage("")
 
@@ -69,7 +57,13 @@ const MovieList: React.FC = () => {
         }
 
 
-    }
+    }, [ImdbBaseURL, formValues.title])
+
+    useEffect(() => {
+        if (formValues.title.length > 3) {
+            searchHandler()
+        }
+    }, [formValues, searchHandler])
 
     const nominateHandler = (movie: movieInterface) => {
         //Limit to five movies
@@ -87,7 +81,7 @@ const MovieList: React.FC = () => {
     }
 
     const removeNominationHandler = (movieID: string) => {
-        setNominatedMovies(nominatedMovies.filter(movie => movie.imdbID != movieID))
+        setNominatedMovies(nominatedMovies.filter(movie => movie.imdbID !== movieID))
     }
 
     const nominatedMovieResults = nominatedMovies.map(movie => (
@@ -98,16 +92,8 @@ const MovieList: React.FC = () => {
         </div>
     ))
 
-    const searchResults = movieList.map(movie => (
-        <div key={movie.imdbID}>
-            <h1>{movie.Title}</h1>
-            <p>{movie.Year}</p>
-            <button onClick={() => nominateHandler(movie)}>Nominate Movie</button>
-        </div>
-    ))
-
     return (
-        <div className={"MovieList"}>
+        <div className={"MovieSearch"}>
             <p>{errorMessage}</p>
             <h1>Movie List Goes Here</h1>
             <form onSubmit={(event) => searchHandler(event)}>
@@ -121,12 +107,13 @@ const MovieList: React.FC = () => {
                        value="Submit"
                 />
             </form>
-            <div>{searchResults}</div>
+            <SearchResults movieList={movieList} nominateHandler={nominateHandler} />
             <h1>Nominated Movies</h1>
-            <div>{nominatedMovieResults}</div>
+            <Nominations nominatedMovies={nominatedMovies} removeNominationHandler={removeNominationHandler} />
         </div>
 
     )
 }
 
-export default MovieList
+
+export default MovieSearch
