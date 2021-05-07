@@ -3,18 +3,21 @@ import axios from "axios";
 import {movieInterface} from "../../Interfaces/MovieInterfaces";
 import SearchResults from "../Components/SearchResults";
 import Nominations from "../Components/Nominations";
+import {Heading, Text, Box, InputGroup, InputLeftElement, Input, Button, Container, useToast} from "@chakra-ui/react"
+import {SearchIcon} from '@chakra-ui/icons'
 
 const MovieSearch: React.FC = () => {
     const [movieList, setMovieList] = useState<movieInterface[]>([])
     const [formValues, setFormValues] = useState({title: ""})
     const [nominatedMovies, setNominatedMovies] = useState<movieInterface[]>([])
-    const [errorMessage, setErrorMessage] = useState("")
+    const [searchError, setSearchError] = useState<boolean>(false)
+    const toast = useToast()
 
     const apiKey = process.env.REACT_APP_IMDBKEY
     const ImdbBaseURL = `http://www.omdbapi.com/?apikey=${apiKey}&type=movie`
 
     const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setErrorMessage("")
+        setSearchError(false)
         setMovieList([])
         event.preventDefault()
         const name = event.target.name
@@ -23,15 +26,16 @@ const MovieSearch: React.FC = () => {
         setFormValues({...formValues, [name]: value})
     }
 
-    const searchHandler = useCallback( async (event?: FormEvent) => {
+    const searchHandler = useCallback(async (event?: FormEvent) => {
         event?.preventDefault()
-        setErrorMessage("")
+        setSearchError(false)
 
         try {
             const response: any = await axios.get(ImdbBaseURL + "&s=" + formValues.title)
             console.log(response)
             if (response.data?.Search) {
-                // imdb search sometimes returns multiple items with the same ID. Not sure why this is, but we can filter them out
+
+                // IMDB sometimes returns multiple entries - Remove duplicates by checking ID
                 const movieIDs: string[] = []
                 let uniqueMovies = response.data?.Search.filter((movie: movieInterface) => {
                     if (movieIDs.find(id => id === movie.imdbID)) {
@@ -40,20 +44,24 @@ const MovieSearch: React.FC = () => {
                     movieIDs.push(movie.imdbID)
                     return true
                 })
-                console.log(uniqueMovies)
-                setMovieList(uniqueMovies)
+
+                setMovieList(uniqueMovies.slice(0,4))
             }
 
             if (response.data?.Response === "False") {
                 setMovieList([])
                 if (response.data?.Error === "Movie not found!") {
-                    setErrorMessage("No movie meets that search criteria")
+                    setSearchError(true)
                 }
             }
 
         } catch (e) {
             console.log(e)
-            //ToDo - display toast with error message
+            toast({
+                title: "Could not connect to IMDB",
+                status: "error",
+                isClosable: true,
+            })
         }
 
 
@@ -68,7 +76,11 @@ const MovieSearch: React.FC = () => {
     const nominateHandler = (movie: movieInterface) => {
         //Limit to five movies
         if (nominatedMovies.length === 5) {
-            // TODO: display warning toast
+            toast({
+                title: "Too many nominations. Try removing a movie first.",
+                status: "error",
+                isClosable: true,
+            })
             return
         }
 
@@ -84,33 +96,52 @@ const MovieSearch: React.FC = () => {
         setNominatedMovies(nominatedMovies.filter(movie => movie.imdbID !== movieID))
     }
 
-    const nominatedMovieResults = nominatedMovies.map(movie => (
-        <div key={movie.imdbID}>
-            <h1>{movie.Title}</h1>
-            <p>{movie.Year}</p>
-            <button onClick={() => removeNominationHandler(movie.imdbID)}>Remove</button>
-        </div>
-    ))
-
     return (
-        <div className={"MovieSearch"}>
-            <p>{errorMessage}</p>
-            <h1>Movie List Goes Here</h1>
-            <form onSubmit={(event) => searchHandler(event)}>
-                <input name={"title"}
-                       value={formValues.title}
-                       typeof={"text"}
-                       placeholder={"movie title..."}
-                       onInput={(event: React.ChangeEvent<HTMLInputElement>) => inputHandler(event)}
-                />
-                <input type="submit"
-                       value="Submit"
-                />
-            </form>
-            <SearchResults movieList={movieList} nominateHandler={nominateHandler} />
-            <h1>Nominated Movies</h1>
-            <Nominations nominatedMovies={nominatedMovies} removeNominationHandler={removeNominationHandler} />
-        </div>
+        <Box m={"5"}>
+            <Box>
+                <Text
+                    as={"h1"}
+                    m={"5"}
+                    bgGradient="linear(to-l, #7928CA, #FF0080)"
+                    bgClip="text"
+                    fontSize="6xl"
+                    fontWeight="extrabold"
+                >
+                    2021 Shoppies
+                </Text>
+            </Box>
+
+            <Container maxW="container.md" centerContent>
+                    <InputGroup>
+                        <InputLeftElement
+                            pointerEvents="none"
+                            color="gray.300"
+                            fontSize="1.2em"
+                            children={<SearchIcon/>}
+                        />
+                        <Input
+                            focusBorderColor={"purple.500"}
+                            name={"title"}
+                            placeholder="Search for a film to nominate"
+                            value={formValues.title}
+                            typeof={"text"}
+                            onInput={(event: React.ChangeEvent<HTMLInputElement>) => inputHandler(event)}
+                            isInvalid={searchError}
+                        />
+                    </InputGroup>
+                    {/*<Button colorScheme="pink" variant="outline">*/}
+                    {/*    Search*/}
+                    {/*</Button>*/}
+            </Container>
+            <Container maxW="container.lg" centerContent>
+                <SearchResults movieList={movieList} nominateHandler={nominateHandler} nominations={nominatedMovies}/>
+            </Container>
+            <Container maxW="container.xl" centerContent>
+                <Box display={"flex"} justifyContent={"center"}>
+                <Nominations nominatedMovies={nominatedMovies} removeNominationHandler={removeNominationHandler}/>
+                </Box>
+            </Container>
+        </Box>
 
     )
 }
