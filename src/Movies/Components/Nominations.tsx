@@ -10,20 +10,6 @@ interface Props {
 
 const Nominations: React.FC<Props> = (props: Props) => {
 
-    const baseURL = `http://www.omdbapi.com/?apikey=${process.env.REACT_APP_IMDBKEY}&i=`
-
-    const getMovieDetails = async (movieID: string) => {
-        try {
-            let response = await axios.get(baseURL + movieID)
-            console.log(response)
-            if(response.data){
-                const details = response.data
-            }
-        } catch (e) {
-            console.log(e)
-        }
-    }
-
     if(props.nominatedMovies.length === 0) return (
         <Box>
             <Text
@@ -34,7 +20,7 @@ const Nominations: React.FC<Props> = (props: Props) => {
                 fontSize="xl"
                 fontWeight="extrabold"
             >
-                Nominate a movie to get started
+                Nominate your five favourite movies!
             </Text>
         </Box>
     )
@@ -47,25 +33,25 @@ const Nominations: React.FC<Props> = (props: Props) => {
                 m={"3"}
                 bgGradient="linear(to-l, #FF0080, #7928CA)"
                 bgClip="text"
-                fontSize="xl"
+                fontSize="2xl"
                 fontWeight="extrabold"
             >
                 Nominations
             </Text>
-            {/*<Button onClick={() => getMovieDetails(props.nominatedMovies[0].imdbID)}*/}
-            {/*        colorScheme="purple"*/}
-            {/*        variant="outline"*/}
-            {/*>*/}
-            {/*    Submit Nominations*/}
-            {/*</Button>*/}
-            <Box display={"flex"} flexDirection={"row"} flexWrap={"wrap"}>
+            <Box display={"flex"} flexDirection={"row"} flexWrap={"wrap"} justifyContent={"center"}>
                 {props.nominatedMovies.map(movie => (
-                    <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden" display={"flex"} m={"2"}
-                         flexDirection={"column"}>
+                    <Box maxW="xs"
+                         m={"2"}
+                         borderWidth="1px"
+                         borderRadius="lg"
+                         overflow="hidden"
+                         display={"flex"}
+                         flexDirection={"column"}
+                    >
                         <Image src={movie.Poster}
                                alt={movie.Title}
                                objectFit="cover"
-                               boxSize="300px"
+                               boxSize="400px"
                         />
 
                         <Box p="3">
@@ -107,11 +93,6 @@ const Nominations: React.FC<Props> = (props: Props) => {
                             <Button mt={"2"} onClick={() => props.removeNominationHandler(movie.imdbID)}>Remove</Button>
                         </Box>
                     </Box>
-                    // <div key={movie.imdbID}>
-                    //     <h1>{movie.Title}</h1>
-                    //     <p>{movie.Year}</p>
-                    //     <button onClick={() => props.removeNominationHandler(movie.imdbID)}>Remove</button>
-                    // </div>
                 ))
                 }
 
