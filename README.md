@@ -2,6 +2,8 @@
 
 This is a demo app created for a job application. Written in Typescript, the app uses the [OMDB api](http://www.omdbapi.com/) to allow users to vote for their favourite film.
 
+# [View Live] (https://movie-nominations-2021.herokuapp.com/)
+
 ## Features
  - Create-React-App  written in Typescript
  - Search queries are returned as you type
