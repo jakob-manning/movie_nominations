@@ -19,15 +19,15 @@ import useStickyState from "../../Hooks/useStickyState";
 const MovieSearch: React.FC = () => {
     const [movieList, setMovieList] = useState<movieInterface[]>([]);
     const [formValues, setFormValues] = useState({title: ""});
+    const [searchError, setSearchError] = useState<boolean>(false);
     const [nominatedMovies, setNominatedMovies] = useStickyState(
         "nominatedFilms",
         []
     );
-    const [searchError, setSearchError] = useState<boolean>(false);
     const toast = useToast();
-
     const ImdbBaseURL = `${process.env.REACT_APP_APIPROXY}type=movie`;
 
+    // Handle Form Input
     const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchError(false);
         // setMovieList([])
@@ -38,11 +38,13 @@ const MovieSearch: React.FC = () => {
         setFormValues({...formValues, [name]: value});
     };
 
+    // Clear Search Bar
     const clearInputHandler = () => {
         setSearchError(false);
         setFormValues({...formValues, title: ""});
     };
 
+    // Send search request to OMDB
     const searchHandler = useCallback(
         async (event?: FormEvent) => {
             event?.preventDefault();
@@ -53,6 +55,8 @@ const MovieSearch: React.FC = () => {
                     ImdbBaseURL + "&s=" + formValues.title
                 );
                 if (response.data?.Search) {
+
+                    // Remove Duplicate films
                     // IMDB sometimes returns multiple entries - Remove duplicates by checking ID
                     const movieIDs: string[] = [];
                     let uniqueMovies = response.data?.Search.filter(
@@ -85,6 +89,7 @@ const MovieSearch: React.FC = () => {
         [ImdbBaseURL, formValues.title, toast]
     );
 
+    // Trigger search if input is longer than three characters
     useEffect(() => {
         if (formValues.title.length > 3) {
             searchHandler();
@@ -93,11 +98,13 @@ const MovieSearch: React.FC = () => {
         }
     }, [formValues, searchHandler]);
 
+    // Add movie to nominate list
     const nominateHandler = (movie: movieInterface) => {
+
         //Limit to five movies
         if (nominatedMovies.length === 5) {
             toast({
-                title: "Too many nominations. Try removing a movie first.",
+                title: "You can only nominate five movies. Try removing a movie first.",
                 status: "error",
                 isClosable: true,
             });
@@ -125,6 +132,7 @@ const MovieSearch: React.FC = () => {
         setNominatedMovies([...nominatedMovies, movie]);
     };
 
+    // Remove a movie from the nomination list
     const removeNominationHandler = (movieID: string) => {
         setNominatedMovies(
             nominatedMovies.filter(

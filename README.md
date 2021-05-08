@@ -1,13 +1,23 @@
 # Welcome to the Shoppies!
 
-A demo app created for a job application. Written in Typescript, the app pulls data from the IMDB api to allow users to vote for their favourite film.
+This is a demo app created for a job application. Written in Typescript, the app uses the [OMDB api](http://www.omdbapi.com/) to allow users to vote for their favourite film.
 
 ## Features
-
- - axios 
-
+ - Create-React-App  written in Typescript
+ - Search queries are returned as you type
+ - API key is protected by proxy via AWS
+ - Page data is saved in local storage
+ - Testing has been implemented (for some components)
+ 
+## Areas For Future Work
+ - Enhance Accessibility
+   - Third-party UI components don't seem to consistently show up in the accessibility tree. This could be mitigated with further labeling.
+ - Testing
+    - Integration tests need to be written
+ - A backend is needed to tally votes
 
 ## To Run
-In the project directory, you can run:
-
 ### `npm start`
+
+## To Test
+### `npm test`
