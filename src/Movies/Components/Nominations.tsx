@@ -1,33 +1,32 @@
-import React, {useCallback, useEffect} from "react";
+import React from "react";
 import {movieInterface} from "../../Interfaces/MovieInterfaces";
-import {Box, Image, Badge, Button, Divider, Text} from "@chakra-ui/react"
-import axios from "axios";
+import {Box, Image, Badge, Button, Divider, Text} from "@chakra-ui/react";
 
 interface Props {
-    nominatedMovies: movieInterface[],
-    removeNominationHandler: Function
+    nominatedMovies: movieInterface[];
+    removeNominationHandler: Function;
 }
 
 const Nominations: React.FC<Props> = (props: Props) => {
-
-    if(props.nominatedMovies.length === 0) return (
-        <Box>
-            <Text
-                as={"h2"}
-                m={"3"}
-                bgGradient="linear(to-l, #FF0080, #7928CA)"
-                bgClip="text"
-                fontSize="xl"
-                fontWeight="extrabold"
-            >
-                Nominate your five favourite movies!
-            </Text>
-        </Box>
-    )
+    if (props.nominatedMovies.length === 0)
+        return (
+            <Box>
+                <Text
+                    as={"h2"}
+                    m={"3"}
+                    bgGradient="linear(to-l, #FF0080, #7928CA)"
+                    bgClip="text"
+                    fontSize="xl"
+                    fontWeight="extrabold"
+                >
+                    Nominate your five favourite movies!
+                </Text>
+            </Box>
+        );
 
     return (
         <Box>
-            <Divider mt={"5"} />
+            <Divider mt={"5"}/>
             <Text
                 as={"h2"}
                 m={"3"}
@@ -38,21 +37,28 @@ const Nominations: React.FC<Props> = (props: Props) => {
             >
                 Nominations
             </Text>
-            <Box display={"flex"} flexDirection={"row"} flexWrap={"wrap"} justifyContent={"center"}>
-                {props.nominatedMovies.map(movie => (
-                    <Box maxW="xs"
-                         m={"2"}
-                         borderWidth="1px"
-                         borderRadius="lg"
-                         overflow="hidden"
-                         display={"flex"}
-                         flexDirection={"column"}
-                         key={movie.imdbID}
+            <Box
+                display={"flex"}
+                flexDirection={"row"}
+                flexWrap={"wrap"}
+                justifyContent={"center"}
+            >
+                {props.nominatedMovies.map((movie) => (
+                    <Box
+                        maxW="xs"
+                        m={"2"}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        overflow="hidden"
+                        display={"flex"}
+                        flexDirection={"column"}
+                        key={movie.imdbID}
                     >
-                        <Image src={movie.Poster}
-                               alt={movie.Title}
-                               objectFit="cover"
-                               boxSize="400px"
+                        <Image
+                            src={movie.Poster}
+                            alt={movie.Title}
+                            objectFit="cover"
+                            boxSize="400px"
                         />
 
                         <Box p="3">
@@ -60,18 +66,7 @@ const Nominations: React.FC<Props> = (props: Props) => {
                                 <Badge borderRadius="full" px="2" colorScheme="teal">
                                     {movie.Year}
                                 </Badge>
-                                <Box
-                                    color="gray.500"
-                                    fontWeight="semibold"
-                                    letterSpacing="wide"
-                                    fontSize="xs"
-                                    textTransform="uppercase"
-                                    ml="2"
-                                >
-                                    "Movie cast?"
-                                </Box>
                             </Box>
-
                             <Box
                                 mt="1"
                                 fontWeight="semibold"
@@ -81,25 +76,18 @@ const Nominations: React.FC<Props> = (props: Props) => {
                             >
                                 {movie.Title}
                             </Box>
-
-                            <Box>
-                                "Movie Descirption?"
-                            </Box>
-
-                            <Box d="flex" mt="2" alignItems="center">
-                                <Box as="span" ml="2" color="gray.600" fontSize="sm">
-                                    Insert Rotten Tomatoes Score Here
-                                </Box>
-                            </Box>
-                            <Button mt={"2"} onClick={() => props.removeNominationHandler(movie.imdbID)}>Remove</Button>
+                            <Button
+                                mt={"2"}
+                                onClick={() => props.removeNominationHandler(movie.imdbID)}
+                            >
+                                Remove
+                            </Button>
                         </Box>
                     </Box>
-                ))
-                }
-
+                ))}
             </Box>
         </Box>
-    )
-}
+    );
+};
 
-export default Nominations
+export default Nominations;

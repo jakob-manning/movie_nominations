@@ -11,79 +11,87 @@ import {
     InputRightElement,
     Input,
     Container,
-    useToast
-} from "@chakra-ui/react"
-import {SearchIcon, CloseIcon} from '@chakra-ui/icons'
+    useToast,
+} from "@chakra-ui/react";
+import {SearchIcon, CloseIcon} from "@chakra-ui/icons";
 import useStickyState from "../../Hooks/useStickyState";
 
 const MovieSearch: React.FC = () => {
-    const [movieList, setMovieList] = useState<movieInterface[]>([])
-    const [formValues, setFormValues] = useState({title: ""})
-    const [nominatedMovies, setNominatedMovies] = useStickyState("nominatedFilms", [])
-    const [searchError, setSearchError] = useState<boolean>(false)
-    const toast = useToast()
+    const [movieList, setMovieList] = useState<movieInterface[]>([]);
+    const [formValues, setFormValues] = useState({title: ""});
+    const [nominatedMovies, setNominatedMovies] = useStickyState(
+        "nominatedFilms",
+        []
+    );
+    const [searchError, setSearchError] = useState<boolean>(false);
+    const toast = useToast();
 
-    const apiKey = process.env.REACT_APP_IMDBKEY
-    const ImdbBaseURL = `${process.env.REACT_APP_APIPROXY}type=movie`
+    const ImdbBaseURL = `${process.env.REACT_APP_APIPROXY}type=movie`;
 
     const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchError(false)
+        setSearchError(false);
         // setMovieList([])
-        event.preventDefault()
-        const name = event.target.name
-        const value = event.target.value
+        event.preventDefault();
+        const name = event.target.name;
+        const value = event.target.value;
 
-        setFormValues({...formValues, [name]: value})
-    }
+        setFormValues({...formValues, [name]: value});
+    };
 
     const clearInputHandler = () => {
-        setSearchError(false)
-        setFormValues({...formValues, title: ""})
-    }
+        setSearchError(false);
+        setFormValues({...formValues, title: ""});
+    };
 
-    const searchHandler = useCallback(async (event?: FormEvent) => {
-        event?.preventDefault()
-        setSearchError(false)
+    const searchHandler = useCallback(
+        async (event?: FormEvent) => {
+            event?.preventDefault();
+            setSearchError(false);
 
-        try {
-            const response: any = await axios.get(ImdbBaseURL + "&s=" + formValues.title)
-            if (response.data?.Search) {
-                // IMDB sometimes returns multiple entries - Remove duplicates by checking ID
-                const movieIDs: string[] = []
-                let uniqueMovies = response.data?.Search.filter((movie: movieInterface) => {
-                    if (movieIDs.find(id => id === movie.imdbID)) {
-                        return false
-                    }
-                    movieIDs.push(movie.imdbID)
-                    return true
-                })
+            try {
+                const response: any = await axios.get(
+                    ImdbBaseURL + "&s=" + formValues.title
+                );
+                if (response.data?.Search) {
+                    // IMDB sometimes returns multiple entries - Remove duplicates by checking ID
+                    const movieIDs: string[] = [];
+                    let uniqueMovies = response.data?.Search.filter(
+                        (movie: movieInterface) => {
+                            if (movieIDs.find((id) => id === movie.imdbID)) {
+                                return false;
+                            }
+                            movieIDs.push(movie.imdbID);
+                            return true;
+                        }
+                    );
 
-                setMovieList(uniqueMovies.slice(0, 4))
-            }
-
-            if (response.data?.Response === "False") {
-                if (response.data?.Error === "Movie not found!") {
-                    setSearchError(true)
+                    setMovieList(uniqueMovies.slice(0, 4));
                 }
-            }
 
-        } catch (e) {
-            console.log(e)
-            toast({
-                title: "Could not connect to IMDB",
-                status: "error",
-                isClosable: true,
-            })
-        }
-    }, [ImdbBaseURL, formValues.title])
+                if (response.data?.Response === "False") {
+                    if (response.data?.Error === "Movie not found!") {
+                        setSearchError(true);
+                    }
+                }
+            } catch (e) {
+                console.log(e);
+                toast({
+                    title: "Could not connect to IMDB",
+                    status: "error",
+                    isClosable: true,
+                });
+            }
+        },
+        [ImdbBaseURL, formValues.title, toast]
+    );
 
     useEffect(() => {
         if (formValues.title.length > 3) {
-            searchHandler()
+            searchHandler();
         } else {
-            setMovieList([])
+            setMovieList([]);
         }
-    }, [formValues, searchHandler])
+    }, [formValues, searchHandler]);
 
     const nominateHandler = (movie: movieInterface) => {
         //Limit to five movies
@@ -92,31 +100,38 @@ const MovieSearch: React.FC = () => {
                 title: "Too many nominations. Try removing a movie first.",
                 status: "error",
                 isClosable: true,
-            })
-            return
-        }
-
-        // Screen for duplicates
-        if (nominatedMovies.find((item: movieInterface) => item.imdbID === movie.imdbID)) {
+            });
             return;
         }
 
+        // Screen for duplicates
+        if (
+            nominatedMovies.find(
+                (item: movieInterface) => item.imdbID === movie.imdbID
+            )
+        ) {
+            return;
+        }
 
         // Display a banner at 5 nominations
-        if(nominatedMovies.length === 4) {
+        if (nominatedMovies.length === 4) {
             toast({
                 title: "Five nominations selected. You can now submit your vote!",
                 status: "info",
                 isClosable: true,
-            })
+            });
         }
 
-        setNominatedMovies([...nominatedMovies, movie])
-    }
+        setNominatedMovies([...nominatedMovies, movie]);
+    };
 
     const removeNominationHandler = (movieID: string) => {
-        setNominatedMovies(nominatedMovies.filter((movie: movieInterface) => movie.imdbID !== movieID))
-    }
+        setNominatedMovies(
+            nominatedMovies.filter(
+                (movie: movieInterface) => movie.imdbID !== movieID
+            )
+        );
+    };
 
     return (
         <Box m={"5"}>
@@ -147,35 +162,39 @@ const MovieSearch: React.FC = () => {
                         placeholder="Search for a film to nominate"
                         value={formValues.title}
                         typeof={"text"}
-                        onInput={(event: React.ChangeEvent<HTMLInputElement>) => inputHandler(event)}
+                        onInput={(event: React.ChangeEvent<HTMLInputElement>) =>
+                            inputHandler(event)
+                        }
                         isInvalid={searchError}
                         aria-label="Search by title"
                     />
-                    {
-                        formValues.title.length > 0 ?
-                            <InputRightElement aria-label="Close search"
-                                               onClick={() => clearInputHandler()}>
-                                <CloseIcon color="gray.300"/>
-                            </InputRightElement>
-                            : null
-                    }
+                    {formValues.title.length > 0 ? (
+                        <InputRightElement
+                            aria-label="Close search"
+                            onClick={() => clearInputHandler()}
+                        >
+                            <CloseIcon color="gray.300"/>
+                        </InputRightElement>
+                    ) : null}
                 </InputGroup>
-                {/*<Button colorScheme="pink" variant="outline">*/}
-                {/*    Search*/}
-                {/*</Button>*/}
             </Container>
             <Container maxW="container.lg" centerContent>
-                <SearchResults movieList={movieList} nominateHandler={nominateHandler} nominations={nominatedMovies}/>
+                <SearchResults
+                    movieList={movieList}
+                    nominateHandler={nominateHandler}
+                    nominations={nominatedMovies}
+                />
             </Container>
             <Container maxW="container.xl" centerContent>
                 <Box display={"flex"} justifyContent={"center"}>
-                    <Nominations nominatedMovies={nominatedMovies} removeNominationHandler={removeNominationHandler}/>
+                    <Nominations
+                        nominatedMovies={nominatedMovies}
+                        removeNominationHandler={removeNominationHandler}
+                    />
                 </Box>
             </Container>
         </Box>
+    );
+};
 
-    )
-}
-
-
-export default MovieSearch
+export default MovieSearch;
