@@ -15,6 +15,7 @@ This is a demo app created for a job application. Written in Typescript, the app
  - Testing
     - Integration tests need to be written
  - A backend is needed to tally votes
+ - Bundle with webpack
 
 ## To Run
 ### `npm start`
