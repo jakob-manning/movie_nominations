@@ -47,6 +47,7 @@ const Nominations: React.FC<Props> = (props: Props) => {
                          overflow="hidden"
                          display={"flex"}
                          flexDirection={"column"}
+                         key={movie.imdbID}
                     >
                         <Image src={movie.Poster}
                                alt={movie.Title}

@@ -1,11 +1,14 @@
 import React from 'react';
 import './App.css';
 import MovieSearch from "./Movies/Containers/MovieSearch";
+import {ChakraProvider} from "@chakra-ui/react"
 
 function App() {
   return (
     <div className="App">
-      <MovieSearch />
+        <ChakraProvider>
+            <MovieSearch />
+        </ChakraProvider>
     </div>
   );
 }

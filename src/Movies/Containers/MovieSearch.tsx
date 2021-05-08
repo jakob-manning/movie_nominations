@@ -4,14 +4,12 @@ import {movieInterface} from "../../Interfaces/MovieInterfaces";
 import SearchResults from "../Components/SearchResults";
 import Nominations from "../Components/Nominations";
 import {
-    Heading,
     Text,
     Box,
     InputGroup,
     InputLeftElement,
     InputRightElement,
     Input,
-    Button,
     Container,
     useToast
 } from "@chakra-ui/react"
@@ -151,10 +149,12 @@ const MovieSearch: React.FC = () => {
                         typeof={"text"}
                         onInput={(event: React.ChangeEvent<HTMLInputElement>) => inputHandler(event)}
                         isInvalid={searchError}
+                        aria-label="Search by title"
                     />
                     {
                         formValues.title.length > 0 ?
-                            <InputRightElement onClick={() => clearInputHandler()}>
+                            <InputRightElement aria-label="Close search"
+                                               onClick={() => clearInputHandler()}>
                                 <CloseIcon color="gray.300"/>
                             </InputRightElement>
                             : null
